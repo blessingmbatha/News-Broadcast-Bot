@@ -1,1 +1,1 @@
-# flask-line-broadcast-line-bot
+# news broadcast line bot on flask micro server 
