@@ -1,5 +1,5 @@
 from flask import Flask, request, abort, redirect, session, url_for
-
+from flask_login import LoginManager, current_user, login_user
 from flask.json import jsonify
 
 from linebot import (
@@ -23,6 +23,12 @@ token_url = 'https://api.line.me/oauth2/v2.1/token'
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'thesecretkey'
+
+login_manager = LoginManager(app)
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
+
 # login
 def get_redirect_url():
     return url_for(
@@ -74,9 +80,14 @@ def oauth_callback():
 
         db_session.add(user)
         db_session.commit()
-    
-    return user.name
+    login_user(user)
+    return redirect(url_for('subscription'))
 
+@app.route("/subscription", methods=['GET', 'POST'])
+def subscription():
+    if current_user.is_anonymous:
+        return redirect(url_for('login'))
+    return current_user.name
 
 line_bot_api = LineBotApi('BzInYuQWZ2KDpjYaRX+nGGk092AQ7UgWHkRx7IT8J8Xc7mbP6gxzDLgcLCuuePJW7FknCq6k/d8RHjxsLoviwUndZB2uzTOJgb6K/PBk3hKjBzSa4te7peTFaFTBmFg2KSFUZmv8o4I3dh2Tm2et3wdB04t89/1O/w1cDnyilFU=')
 handler = WebhookHandler('a842e0251982aac19ce2ffd563f28d3c')
