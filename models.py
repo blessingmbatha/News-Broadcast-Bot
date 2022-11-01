@@ -12,6 +12,7 @@ class User(UserMixin, Base):
     profile_image_url = Column(String)
     is_blocked = Column(Boolean, default=False)
     is_subscribed = Column(Boolean, default=False)
+    schedule = Column(Integer)
     created_time = Column(DateTime, default=datetime.datetime.now())
 
     def __init__(self, social_id, name, profile_image_url):
