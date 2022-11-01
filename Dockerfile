@@ -11,5 +11,6 @@ RUN pip install line-bot-sdk
 RUN pip install requests-oauthlib
 RUN pip install SQLAlchemy
 RUN pip install Flask-Login
+RUN pip install Flask-WTF
 
 CMD ["python3", "app.py"]
