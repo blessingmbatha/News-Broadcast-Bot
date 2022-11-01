@@ -12,7 +12,7 @@ from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage, StickerSendMessage
 )
 from requests_oauthlib import OAuth2Session
-import logging
+from database import init_db, db_session
 
 # This information is obtained upon registration of a new GitHub
 client_id = "1657607783"
@@ -29,6 +29,15 @@ def get_redirect_url():
         _external=True,
         _scheme='https'
     )
+# 在收到第一個請求後執行db的初始化
+@app.before_first_request
+def init():    
+    init_db()
+# 在每個請求後或是server關閉後關閉db
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db_session.remove()
+
 @app.route("/login")
 def login():
     line_login = OAuth2Session(
