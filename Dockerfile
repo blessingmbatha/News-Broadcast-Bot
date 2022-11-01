@@ -9,5 +9,6 @@ RUN pip install Flask
 RUN pip install flask_cors
 RUN pip install line-bot-sdk
 RUN pip install requests-oauthlib
+RUN pip install SQLAlchemy
 
 CMD ["python3", "app.py"]
