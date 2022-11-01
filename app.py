@@ -13,6 +13,7 @@ from linebot.models import (
 )
 from requests_oauthlib import OAuth2Session
 from database import init_db, db_session
+from models import User
 
 # This information is obtained upon registration of a new GitHub
 client_id = "1657607783"
@@ -60,7 +61,22 @@ def oauth_callback():
         authorization_response=request.url.replace('http', 'https')
     )
 
-    return jsonify(line_login.get('https://api.line.me/v2/profile').json())
+    user_data = line_login.get('https://api.line.me/v2/profile').json()
+
+    user = User.query.filter_by(social_id=user_data.get('userId')).first()
+
+    if not user:
+        user = User(
+            social_id=user_data.get('userId'),
+            name=user_data.get('displayName'),
+            profile_image_url=user_data.get('pictureUrl')
+        )
+
+        db_session.add(user)
+        db_session.commit()
+    
+    return user.name
+
 
 line_bot_api = LineBotApi('BzInYuQWZ2KDpjYaRX+nGGk092AQ7UgWHkRx7IT8J8Xc7mbP6gxzDLgcLCuuePJW7FknCq6k/d8RHjxsLoviwUndZB2uzTOJgb6K/PBk3hKjBzSa4te7peTFaFTBmFg2KSFUZmv8o4I3dh2Tm2et3wdB04t89/1O/w1cDnyilFU=')
 handler = WebhookHandler('a842e0251982aac19ce2ffd563f28d3c')
