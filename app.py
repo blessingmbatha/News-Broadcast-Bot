@@ -9,7 +9,7 @@ from linebot.exceptions import (
     InvalidSignatureError
 )
 from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, StickerSendMessage
+    MessageEvent, TextMessage, TextSendMessage, StickerSendMessage, FollowEvent, UnfollowEvent
 )
 from requests_oauthlib import OAuth2Session
 from database import init_db, db_session
@@ -141,6 +141,20 @@ def handle_message(event):
             TextSendMessage(text='何言ってんの？分がんないよ〜')
         )
 
+@handler.add(UnfollowEvent)
+def handle_unfollow(event):
+    user = User.query.filter(User.social_id == event.source.user_id).first()
+    if user:
+        user.is_blocked = True
+        db_session.commit()
+
+ @handler.add(FollowEvent)
+def handle_follow(event):
+    user = User.query.filter(User.social_id == event.source.user_id).first()
+    if user:
+        user.is_blocked = False
+        db_session.commit()
+       
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5001, debug=True)
