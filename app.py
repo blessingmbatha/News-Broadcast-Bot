@@ -148,7 +148,7 @@ def handle_unfollow(event):
         user.is_blocked = True
         db_session.commit()
 
- @handler.add(FollowEvent)
+@handler.add(FollowEvent)
 def handle_follow(event):
     user = User.query.filter(User.social_id == event.source.user_id).first()
     if user:
