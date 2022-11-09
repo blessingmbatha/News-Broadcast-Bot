@@ -2,19 +2,17 @@ from flask import Flask, request, abort, redirect, session, url_for, render_temp
 from flask_login import LoginManager, current_user, login_user
 from flask.json import jsonify
 
-from linebot import (
-    LineBotApi, WebhookHandler
-)
-from linebot.exceptions import (
-    InvalidSignatureError
-)
-from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, StickerSendMessage, FollowEvent, UnfollowEvent
-)
+from line_bot import *
+
+from apscheduler.schedulers.background import BackgroundScheduler
+
 from requests_oauthlib import OAuth2Session
 from database import init_db, db_session
 from models import User
 from forms import SubscriptionForm
+
+from jobs import news_scraper
+
 # This information is obtained upon registration of a new GitHub
 client_id = "1657607783"
 client_secret = "1437c2fc73ecc30def7400bbc8af76ce"
@@ -97,10 +95,6 @@ def subscription():
 
     return render_template('subscription.html', form=form, user=current_user)
 
-line_bot_api = LineBotApi('BzInYuQWZ2KDpjYaRX+nGGk092AQ7UgWHkRx7IT8J8Xc7mbP6gxzDLgcLCuuePJW7FknCq6k/d8RHjxsLoviwUndZB2uzTOJgb6K/PBk3hKjBzSa4te7peTFaFTBmFg2KSFUZmv8o4I3dh2Tm2et3wdB04t89/1O/w1cDnyilFU=')
-handler = WebhookHandler('a842e0251982aac19ce2ffd563f28d3c')
-
-
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -154,7 +148,11 @@ def handle_follow(event):
     if user:
         user.is_blocked = False
         db_session.commit()
-       
+
 
 if __name__ == "__main__":
+    sched = BackgroundScheduler()
+    sched.add_job(news_scraper, 'interval', seconds=600)
+    # sched.add_job(news_scraper, 'cron', hour='8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21')
+    sched.start()
     app.run(host='0.0.0.0', port=5001, debug=True)
