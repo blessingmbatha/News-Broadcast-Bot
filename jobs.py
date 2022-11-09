@@ -61,13 +61,18 @@ def news_scraper():
     for news in news_list :
         carousel_column = CarouselColumn(
             thumbnail_image_url=news.get('img_url'),
-            title=news.get('title'),
+            title=news.get('title')[:40],
+            text=news.get('date'),
+            actions=[URIAction(label='Read', uri=news.get('url'))]
         )
-        print(news.get('title'))
-        print(news.get('date'))
-        print(news.get('url'))
-        print(news.get('img_url'))
+        carousel_columns.append(carousel_column)
 
+    carousel_template_message = TemplateSendMessage(
+        alt_text="Here is your news"
+        template=CarouselTemplate(
+            columns=carousel_columns
+        )
+    )
     # print(locale.getlocale(locale.LC_TIME))
 
 news_scraper()
