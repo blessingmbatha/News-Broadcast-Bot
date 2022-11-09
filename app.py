@@ -1,4 +1,4 @@
-from flask import Flask, request, abort, redirect, session, url_for, render_template
+from flask import Flask, request, abort, redirect, session, url_for, render_template, flash
 from flask_login import LoginManager, current_user, login_user
 from flask.json import jsonify
 
@@ -93,7 +93,8 @@ def subscription():
         form.populate_obj(current_user)
         db_session.add(current_user)
         db_session.commit()
-        
+        flash('Save Successfully!!')
+
     return render_template('subscription.html', form=form, user=current_user)
 
 line_bot_api = LineBotApi('BzInYuQWZ2KDpjYaRX+nGGk092AQ7UgWHkRx7IT8J8Xc7mbP6gxzDLgcLCuuePJW7FknCq6k/d8RHjxsLoviwUndZB2uzTOJgb6K/PBk3hKjBzSa4te7peTFaFTBmFg2KSFUZmv8o4I3dh2Tm2et3wdB04t89/1O/w1cDnyilFU=')
